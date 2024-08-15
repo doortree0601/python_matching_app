@@ -227,7 +227,7 @@ def main():
                 if curr_user is not None:
                     if len(curr_user.liked_users) > 0:
                         print(curr_user.view_other_profile()['liked_users'])
-                        remove_index = input('Please Enter the index of the user you want to remove')
+                        remove_index = int(input('Please Enter the index of the user you want to remove'))
                         curr_user.remove_liked_users(remove_index)
                         print("\nLiked user updated")
                     else:
