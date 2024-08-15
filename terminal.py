@@ -46,6 +46,70 @@ def user_exists(user_id):
     conn.close()
     return res is not None
 
+
+# Get all user data store in a pandas df
+def fetch_all():
+
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    cursor.execute('''SELECT user_id from user''')
+    all_id = cursor.fetchall()
+    user_ids = [id[0] for id in all_id]
+    res_1 = [User.fetch_user(i) for i in user_ids] # Dorothy
+    res = [{
+        'id': user.user_id,
+        'age': user.age,
+        'location': user.location_int,
+        'interests': user.interests_int
+    }for user in res_1]
+    users_df = pd.DataFrame(res)
+    conn.close()
+    return users_df
+
+# Match Algorithm
+# Same Location +10 points
+# Age close greater/less than 5 years +5 points
+# Number of Same interest + 2points each
+# Not in like/dislike
+def interest_score(curr_data, interests):
+    # Find the intersection of interests between the current user and the user in the DataFrame
+    same_interests = set(curr_data['interests']) & set(interests)
+
+    # Calculate the score based on the number of shared interests
+    return len(same_interests) * 2
+
+def top_matching():
+    curr_user_data={
+        'id':curr_user.user_id,
+        'age':curr_user.age,
+        'location': curr_user.location_int,
+        'interests': curr_user.interests_int
+    }
+    all_user_data = fetch_all()
+
+    all_user_data['location_points'] = np.where(all_user_data['location'] == curr_user_data['location'], 10, 0)
+    all_user_data['age_points'] = np.where(abs(all_user_data['age'] - curr_user_data['age']) <= 5, 5, 0)
+    all_user_data['interest_points'] = all_user_data['interests'].apply(lambda i: interest_score(curr_user_data, i))
+    all_user_data['total_score'] = all_user_data['location_points'] +all_user_data['age_points'] +all_user_data['interest_points']
+
+    remove_like_dislike= all_user_data[~all_user_data['id'].isin(curr_user.liked_users + curr_user.disliked_users)]
+    top_matches = remove_like_dislike.sort_values(by='total_score', ascending=False)
+    top_10_matches = top_matches.head(10)['id'].tolist()
+    return top_10_matches
+
+# Check whether user exist in the database
+def user_exists(user_id):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+    SELECT user_id from user
+    Where user_id = ?
+    ''', (user_id,))
+    res = cursor.fetchone()
+
+    conn.close()
+    return res is not None
 # browse through the list of user_ids and return a user which is not in the user's liked/dislied list
 # def browsing(user, lists_users):
 #     like_set = set(user.liked_users)
@@ -176,17 +240,35 @@ def main():
                     top_users = ["efa8abbe-323e-4960-984b-30adec2f2335", "511e90a4-a1f1-4558-a37c-50a58fcc1b66", "b8bd979d-f827-4ffc-9af8-8fbabcadbd04"]
                     # find_best_matches(curr_user.user_id)  # Meghu - this should be debugged and refined, for now use a preset list of users
 
-                    for i in range (len(top_users)):
-                        user_shown = User.fetch_user(top_users[i])
-                        print(User.view_other_profile(user_shown)) # -> Lily
-                        sub_comd = input('Enter 1 if you like the profile, or 2 if you dislike the profile:')
-                        if sub_comd == '1':
-                            curr_user.like_user(user_shown)  
-                        if sub_comd == '2':
-                            curr_user.dislike_user(user_shown) 
+                    top_users = top_matching()
+                    for user in top_users:
+                        matched_user = User.fetch_user(user)
+                        print(matched_user.view_other_profile())
+                        if matched_user:
+                            sub_comd = input_validate(
+                                'Enter 1 if you like the profile, or 2 if you dislike the profile:', [1, 2])
+                            print(f"sub_comd = {sub_comd}")
+                            if sub_comd == 1:
+                                print(f"Liking user: {matched_user.name}")
+                                curr_user.like_user(matched_user)
+                                print('liked')
+                            elif sub_comd == 2:
+                                curr_user.dislike_user(matched_user)
+                                print('disliked')
                         else:
-                            print('\nInvalid input')
-                        i+=1
+                            print('No Matched user')
+
+                    # for i in range (len(top_users)):
+                    #     user_shown = User.fetch_user(top_users[i])
+                    #     print(User.view_other_profile(user_shown)) # -> Lily
+                    #     sub_comd = input('Enter 1 if you like the profile, or 2 if you dislike the profile:')
+                    #     if sub_comd == '1':
+                    #         curr_user.like_user(user_shown)
+                    #     if sub_comd == '2':
+                    #         curr_user.dislike_user(user_shown)
+                    #     else:
+                    #         print('\nInvalid input')
+                    #     i+=1
 
 
                     # for user in top_users:
@@ -207,7 +289,7 @@ def main():
 
             elif comd == '6':
                 if curr_user is not None:
-                    print(curr_user.view_profile())
+                    print(curr_user.view_own_profile())
                 else:
                     print('\nPlease Login')
 
