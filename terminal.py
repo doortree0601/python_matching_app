@@ -209,7 +209,7 @@ def main():
                     new_user = User.create_user(info[0], info[1], info[2], info[3], info[4])
                     print(f'New user created, your user_id is: {new_user.user_id}')
                     curr_user = new_user
-                    login(new_user.user_id) 
+                    print('Login successful')
                 # else:
                 #     print('\nYou need to logout') DL: I don't think we need this since user will alwasy be created unless they exist the cli
 
