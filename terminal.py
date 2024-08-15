@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from enum import Enum
 
-# HI HI
+#
 from User_class import User, Gender, Interest, Location, db_name
 
 curr_user = None
