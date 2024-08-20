@@ -2,8 +2,13 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import sqlite3
 
+from termial import fetch_all, user_exists
 from User_class import User, Gender, Interest, Location, db_name
-from termial import login
+#from User_class import User, Gender, Interest, Location, db_name
+
+
+db_name = 'big_sample_db.db'
+curr_user = None
 
 def load_frame1():
     frame1.pack_propagate(False)
@@ -41,6 +46,19 @@ def load_frame1():
             )
     button2.pack(side="top", pady=10)
 
+
+def login(user_id):
+    global curr_user
+    if user_exists(user_id):
+        curr_user = user_id
+        print('Login successful')
+        after_login_interface()
+
+    else:
+        print('User not exist, Please create an account')
+    return
+
+
 #open login window
 def open_login_interface():
     # Create a new top-level window for the login interface
@@ -55,7 +73,9 @@ def open_login_interface():
     userid_entry = tk.Entry(login_window)
     userid_entry.pack(side="top", pady=10)
 
-    curr_user = None
+
+
+    # Set current user
 
     login_button = tk.Button(login_window, text="Login", command=lambda:login(userid_entry.get()),
             font = ("TkHeadingFont",20),
@@ -168,7 +188,6 @@ for frame in (frame1, frame2):
     frame.grid(row=0, column=0)
 
 load_frame1()   
-after_login_interface()
 
 #run app
 root.mainloop()
