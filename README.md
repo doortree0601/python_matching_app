@@ -2,7 +2,7 @@
 
 ## Section 1 - Database Structure
 
-A relational database was developed for this project. The scheme can be accessed here: https://app.quickdatabasediagrams.com/#/d/QvkzNp
+A relational database was developed for this project. The schema can be accessed here: https://app.quickdatabasediagrams.com/#/d/QvkzNp
 
 The basic design principle is to minimize interactions with the database unless absolutely necessary. This is designed with real-world applications in mind, where connections to databases can be expensive. We work primarily with objects in our program. 
 
