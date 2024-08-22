@@ -4,8 +4,8 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 from enum import Enum
+from Matching_Algo import find_top_matches
 
-# HI HI
 from User_class import User, Gender, Interest, Location, db_name
 
 curr_user = None
@@ -145,7 +145,7 @@ def main():
                     new_user = User.create_user(info[0], info[1], info[2], info[3], info[4])
                     print(f'New user created, your user_id is: {new_user.user_id}')
                     curr_user = new_user
-                    login(new_user.user_id) 
+                    login(new_user.user_id)
                 # else:
                 #     print('\nYou need to logout') DL: I don't think we need this since user will alwasy be created unless they exist the cli
 
@@ -171,39 +171,49 @@ def main():
                 else:
                     print('\nPlease Login')
 
+
             elif comd == '5':
+
                 if curr_user is not None:
-                    top_users = ["efa8abbe-323e-4960-984b-30adec2f2335", "511e90a4-a1f1-4558-a37c-50a58fcc1b66", "b8bd979d-f827-4ffc-9af8-8fbabcadbd04"]
-                    # find_best_matches(curr_user.user_id)  # Meghu - this should be debugged and refined, for now use a preset list of users
 
-                    for i in range (len(top_users)):
-                        user_shown = User.fetch_user(top_users[i])
-                        print(User.view_other_profile(user_shown)) # -> Lily
-                        sub_comd = input('Enter 1 if you like the profile, or 2 if you dislike the profile:')
-                        if sub_comd == '1':
-                            curr_user.like_user(user_shown)  
-                        if sub_comd == '2':
-                            curr_user.dislike_user(user_shown) 
+                    top_users = find_top_matches(curr_user.user_id)
+
+                    for user in top_users:
+
+                        matched_user = User.fetch_user(user[0])
+
+                        print(matched_user.view_other_profile())
+
+                        if matched_user:
+
+                            sub_comd = input_validate(
+                                'Enter 1 if you like the profile, or 2 if you dislike the profile:', [1, 2])
+
+                            if sub_comd == 1:
+
+                                print(f"Liking user: {matched_user.name}")
+
+                                curr_user.like_user(matched_user)
+
+                                print('liked')
+
+                            elif sub_comd == 2:
+
+                                curr_user.dislike_user(matched_user)
+
+                                print('disliked')
+
                         else:
-                            print('\nInvalid input')
-                        i+=1
 
+                            print('No Matched user')
 
-                    # for user in top_users:
-                    #     matched_user = User.fetch_user(user)
-                    #     print(matched_user.view_other_profile())
+                    print(curr_user.matches)
 
-                    # if matched_user:
-                    #     sub_comd = input('Enter 1 if you like the profile, or 2 if you dislike the profile:')
-                    #     if sub_comd == '1':
-                    #         curr_user.like(listed_user)  
-                    #     if sub_comd == '2':
-                    #         curr_user.dislike(listed_user) 
-                    #     else:
-                    #         print('\nInvalid input')
 
                 else:
+
                     print('\nPlease Login')
+
 
             elif comd == '6':
                 if curr_user is not None:
@@ -216,7 +226,7 @@ def main():
 
             elif comd == '8':
                 if curr_user:
-                    curr_user.delete_user() 
+                    curr_user.delete_user()
                     logout()
                 else:
                     print('\nPlease Login')
