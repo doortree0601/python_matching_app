@@ -4,7 +4,6 @@ import sqlite3
 
 from terminal import fetch_all, user_exists
 from User_class import User, Gender, Interest, Location, db_name
-#from User_class import User, Gender, Interest, Location, db_name
 
 curr_user = None
 

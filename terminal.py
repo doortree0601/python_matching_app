@@ -200,7 +200,7 @@ def main():
                                 print('disliked')
                         else:
                             print('No Matched user')
-                    print(curr_user.matches)
+                    print(f"Your matched users: {curr_user.matches}")
 
                 else:
                     print('\nPlease Login')

@@ -305,6 +305,7 @@ class User:
     def remove_liked_users(self,user_position):
         # when a user sees their profile and their list of likes, they will only see names. We want them to type in 0, 1, 2 etc. to remove a like from the list
         # for example, if jenny wants to remove the first person she liked, she will type in 0. The will looik like jenny.remove_liked_users(0). This will give us the id of the person she wants to remove from her liked list. 
+        self.liked_users.sort()
 
         user_id_to_remove = self.liked_users[user_position]
         self.liked_users.remove(user_id_to_remove)
