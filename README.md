@@ -65,7 +65,7 @@ options. Select the desired action by entering the corresponding number.
 10. Exiting the App: Enter digit 9 to close the app.
 
 
-## Matchi UI - README 
+## Section 2- Matchi UI
 ### Overview 
 The Matchi User Interface (UI) allows users to quickly set up an account, visualize their profile, and interact with the application. 
 ### Main Interface
