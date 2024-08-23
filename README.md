@@ -22,36 +22,36 @@ The program will interact with the database when:
 A sample database with fake names, created using the *faker* library, is available in this repo for testing purpose.
 
 
-### Terminal Interface
-#### Overview
+## Section 2 - Terminal Interface
+### Overview
 The Matchi App mainly uses terminal-based interface for the matching system. It allows users to sign up, login, edit their profiles,
 manage their liked users, brose through other user profiles and view their own profiles. This system is built using Python and SQLite.
 
-#### Features
-##### User Login
+### Features
+#### User Login
 Existing users can login using their user-id, they can access edit profile functions, edit liked users, browse user profiles, 
 view own profiles, delete the account if no intention to future use and logout.
-##### User Signup
+#### User Signup
 New users can create an account by providing their name, birthdate, gender, location，and interests. The system will 
 generate a unique user ID, which the user should save for future logins.
-##### Edit Profile
+#### Edit Profile
 Logged-in users can update their profile information, including name, birthdate, gender, location and interests.
 Users will be required to enter all the information to make the update.
-##### Remove Liked Users
+#### Remove Liked Users
 Logged-in users can remove any other user in their liked list. The user need to enter the corresponding index 
 (starting from 0) in the list to remove the user
-##### Browse User Profiles
+#### Browse User Profiles
 Logged-in users can browse through other user profiles, and can either like or dislike them. The system automatically find 
 top ten users based on age, location and shared interests. 
 After the user go through all the ten users, they can choose to continue browsing for new ten users.
 User must choose whether like/dislike for certain profile. 
-##### View Profile
+#### View Profile
 Logged-in users can view their own profile details.
-##### Logout and Delete account
+#### Logout and Delete account
 User can logout, which need to login again to use other functions. If the user wish to clear all the data permanently, 
 they can also delete their accounts
 
-#### Instructions
+### Instructions
 1. Running the application: To start the app, simply run the terminal.py file. The main menu will appear with several 
 options. Select the desired action by entering the corresponding number.
 2. Logging in: Enter digit 1 in the menu, then enter your user id to log in.
@@ -65,7 +65,7 @@ options. Select the desired action by entering the corresponding number.
 10. Exiting the App: Enter digit 9 to close the app.
 
 
-## Section 2- Matchi UI
+## Section 3- Matchi UI
 ### Overview 
 The Matchi User Interface (UI) allows users to quickly set up an account, visualize their profile, and interact with the application. 
 ### Main Interface
@@ -113,6 +113,7 @@ The interface also includes a "Logout" button, which will log the user out, requ
 ### Notes 
 - Ensure that the first letter of the `Location` and `Interest` inputs is capitalized and that the selection is made from the provided lists. 
 - Profile details are displayed upon successful login or sign-up.
+
 ## Appendix
 Some of the code we used chatgpt as support.
 OpenAI. (2023). ChatGPT [Computer software]. Retrieved [Aug, 21, 2024], from https://chat.openai.com
