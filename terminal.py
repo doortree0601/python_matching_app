@@ -4,13 +4,14 @@ from datetime import datetime
 import pandas as pd
 import numpy as np
 from enum import Enum
-from Macthing_Algo import normalize, get_user_data, vectorize_interests, vectorize_age, vectorize_location, calculate_cosine_similarity,find_best_matches
-# HI HI
+
 from User_class import User, Gender, Interest, Location, db_name
+from Matching_Algo import euclidean_distance, jaccard_similarity, normalize_euclidean, match_score, find_top_matches
 
+# Set global current user
 curr_user = None
-# Set current user
 
+# Login the user belongs to the current user id
 def login(user_id):
     global curr_user
     if curr_user is None and user_exists(user_id):
@@ -32,6 +33,25 @@ def logout():
     return
 
 
+# Get all user data store in a pandas df
+def fetch_all():
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    cursor.execute('''SELECT user_id from user''')
+    all_id = cursor.fetchall()
+    user_ids = [id[0] for id in all_id]
+    res_1 = [User.fetch_user(i) for i in user_ids]  # Dorothy
+    res = [{
+        'id': user.user_id,
+        'age': user.age,
+        'location': user.location_int,
+        'interests': user.interests_int
+    } for user in res_1]
+    users_df = pd.DataFrame(res)
+    conn.close()
+    return users_df
+
+
 # Check whether user exist in the database
 def user_exists(user_id):
     conn = sqlite3.connect(db_name)
@@ -46,18 +66,7 @@ def user_exists(user_id):
     conn.close()
     return res is not None
 
-# browse through the list of user_ids and return a user which is not in the user's liked/dislied list
-# def browsing(user, lists_users):
-#     like_set = set(user.liked_users)
-#     dislike_set = set(user.disliked_users)
-#     inter_like = set(lists_users).intersection(like_set)
-#     inter_dislike = set(lists_users).intersection(dislike_set)
-#     for id in lists_users:
-#         if id not in (inter_like or inter_dislike):
-#             return User.fetch_user(id)
-#     return print('Come back tomorrow')
-
-
+# Varify whether the input from the user is in the designed range
 def input_validate(input_p, valid_range):
     while True:
         try:
@@ -94,7 +103,8 @@ def get_new_user_info():
     print('Please Select your location:')
     for loca in Location:
         print(f'{loca.name}:{loca.value}')
-    location = input_validate('Please enter the number corresponding to your location: ', [loca.value for loca in Location])
+    location = input_validate('Please enter the number corresponding to your location: ',
+                              [loca.value for loca in Location])
 
     print('Please Select your interest:')
     for inter in Interest:
@@ -114,7 +124,7 @@ def get_new_user_info():
     result = [name, birthdate, gender, location, interests]
     return result
 
-
+# Terminal interface
 def main():
     global curr_user
     try:
@@ -145,7 +155,7 @@ def main():
                     new_user = User.create_user(info[0], info[1], info[2], info[3], info[4])
                     print(f'New user created, your user_id is: {new_user.user_id}')
                     curr_user = new_user
-                    login(new_user.user_id) 
+                    print('Login successful')
                 # else:
                 #     print('\nYou need to logout') DL: I don't think we need this since user will alwasy be created unless they exist the cli
 
@@ -162,8 +172,9 @@ def main():
             elif comd == '4':
                 if curr_user is not None:
                     if len(curr_user.liked_users) > 0:
-                        print(curr_user.view_other_profile()['liked_users'])
-                        remove_index = input('Please Enter the index of the user you want to remove')
+                        print(curr_user.view_own_profile()['liked_users'])
+                        remove_index = input_validate('Please Enter the index of the user you want to remove: ',
+                                                      [i for i in range(0, len(curr_user.liked_users))])
                         curr_user.remove_liked_users(remove_index)
                         print("\nLiked user updated")
                     else:
@@ -171,53 +182,32 @@ def main():
                 else:
                     print('\nPlease Login')
 
-
             elif comd == '5':
-
                 if curr_user is not None:
-
-                    top_users = find_best_matches(curr_user.user_id)
-
+                    top_users = find_top_matches(curr_user.user_id)
                     for user in top_users:
-
                         matched_user = User.fetch_user(user[0])
-
                         print(matched_user.view_other_profile())
-
                         if matched_user:
-
                             sub_comd = input_validate(
                                 'Enter 1 if you like the profile, or 2 if you dislike the profile:', [1, 2])
-
                             if sub_comd == 1:
-
                                 print(f"Liking user: {matched_user.name}")
-
                                 curr_user.like_user(matched_user)
-
                                 print('liked')
-
                             elif sub_comd == 2:
-
                                 curr_user.dislike_user(matched_user)
-
                                 print('disliked')
-
                         else:
-
                             print('No Matched user')
-
                     print(curr_user.matches)
 
-
                 else:
-
                     print('\nPlease Login')
-
 
             elif comd == '6':
                 if curr_user is not None:
-                    print(curr_user.view_profile())
+                    print(curr_user.view_own_profile())
                 else:
                     print('\nPlease Login')
 
@@ -226,7 +216,7 @@ def main():
 
             elif comd == '8':
                 if curr_user:
-                    curr_user.delete_user() 
+                    curr_user.delete_user()
                     logout()
                 else:
                     print('\nPlease Login')
@@ -241,11 +231,9 @@ def main():
         print(f'{e}: Wrong input, try again')
         print('Program restarted, please login again')
     finally:
-        print(f'Program restarts')
+        print(f'Program closed')
+
 
 #
 if __name__ == '__main__':
     main()
-
-# a = User.fetch_user('4e785559-c2b7-481d-aecd-6f7dea332dea')
-# b=User.fetch_user('a3d35860-f4c5-4a99-b960-3690182ef994')
